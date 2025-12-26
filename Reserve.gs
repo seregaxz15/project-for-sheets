@@ -1,12 +1,8 @@
-/**
- * Reserve (предварительная запись) parser — добавляет "РЕЗЕРВ" записи
- */
-
 function processReserveEmails() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("Автомат") || ss.insertSheet("Автомат");
 
-  console.log("--- СТАРТ ПРОВЕРКИ РЕЗЕРВА С ДАТОЙ И EMAIL ---");
+  console.log("--- СТАРТ---");
 
   const threads = GmailApp.search('subject:"Новая запись в резерв" newer_than:2d');
   const lastRow = sheet.getLastRow();
@@ -59,7 +55,7 @@ function processReserveEmails() {
       }
     }
   }
-  console.log("--- КОНЕЦ ПРОВЕРКИ ---");
+  console.log("--- КОНЕЦ ---");
 }
 
 function parseReserveEmail(body) {
@@ -81,4 +77,60 @@ function parseReserveEmail(body) {
     productName: productName,
     tourDate: tourDate
   };
+}
+function formatReserveDate(dateStr) {
+
+  if (!dateStr) return "";
+
+
+
+  const monthsMap = {
+
+    "янв": "янв", "фев": "фев", "мар": "мар", "апр": "апр", "май": "май", "июн": "июн",
+
+    "июл": "июл", "авг": "авг", "сен": "сен", "окт": "окт", "ноя": "ноя", "дек": "дек",
+
+    "января": "янв", "февраля": "фев", "марта": "мар", "апреля": "апр", "мая": "май", "июня": "июн",
+
+    "июля": "июл", "августа": "авг", "сентября": "сен", "октября": "окт", "ноября": "ноя", "декабря": "дек"
+
+  };
+
+
+
+
+  const dayMatch = dateStr.match(/\d+/);
+
+  if (!dayMatch) return dateStr;
+
+  const day = parseInt(dayMatch[0], 10);
+
+
+  let foundMonth = "";
+
+  const lowerDate = dateStr.toLowerCase();
+
+  for (let key in monthsMap) {
+
+    if (lowerDate.includes(key)) {
+
+      foundMonth = monthsMap[key];
+
+      break;
+
+    }
+
+  }
+
+
+
+  return foundMonth ? `${day}-${foundMonth}` : dateStr;
+
+}
+function logError(logSheet, error, messageId) {
+
+  const now = new Date();
+
+  logSheet.appendRow([now, messageId, error.toString()]);
+
 }
